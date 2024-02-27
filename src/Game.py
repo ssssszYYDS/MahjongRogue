@@ -37,7 +37,7 @@ class Game(object):
         self.dt = self.clock.tick(Constants.FPS)  # 60 FPS
         self.time = pg.time.get_ticks() / 1000
 
-        self.all_deck = [Card(cardStr) for cardStr in Constants.ALLCARD]
+        self.all_deck = [Card(cardStr) for cardStr in Constants.ALLCARDS]
         self.deck = self.all_deck.copy()
         random.shuffle(self.deck)
         self.hands = []
@@ -91,7 +91,7 @@ class Game(object):
                     for i, card in enumerate(self.hands):
                         image_x, image_y = card.rect.topleft
                         w, h = card.picture.get_size()
-                        if CommonEventManager.is_in_rect(event.pos, (image_x, image_y, w, h)):
+                        if self.ui.drag_id != -1 and CommonEventManager.is_in_rect(event.pos, (image_x, image_y, w, h)):
                             self.manager.swap(i, self.ui.drag_id)
                             self.ui.moveCardImages.fill((0, 0, 0))
                             break
@@ -134,7 +134,8 @@ class Game(object):
             self.dt = self.clock.tick(Constants.FPS)  # 60 FPS
             self.time = pg.time.get_ticks() / 1000
 
-            self.manager.update()
+            self.manager.common_event.vision_update()
+            self.manager.common_event.end_check()
 
             # break
             self.ui.plot()

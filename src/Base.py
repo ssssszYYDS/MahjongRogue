@@ -1,9 +1,14 @@
 class Constants:
     FPS = 60
 
-    DEFAULT_SCREEN = False
+    # DEFAULT_SCREEN = False
+    # FULL_SCREEN = False
+    # FULL_WINDOW_SCREEN = True
+
+    DEFAULT_SCREEN = True
     FULL_SCREEN = False
-    FULL_WINDOW_SCREEN = True
+    FULL_WINDOW_SCREEN = False
+
     DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT = 1280, 720
     WINDOW_WIDTH, WINDOW_HEIGHT = None, None
     if DEFAULT_SCREEN:

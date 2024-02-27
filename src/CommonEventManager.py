@@ -44,9 +44,9 @@ class CommonEventManager(object):
             button.button.fill(button.button_color)
             return False
 
-    def refresh(self):
-        if self.autoSort:
-            self.sort_hands(False)
+    def refresh(self, sort=True):
+        if self.autoSort and sort:
+            self.sort_hands(refresh=False)
         self.game.ui.cardImages.fill((0, 0, 0))
         for i, card in enumerate(self.game.hands):
             card.rect = self.game.ui.get_hands_rect(i)
@@ -64,8 +64,8 @@ class CommonEventManager(object):
         card.holder = 1
         self.game.loader.load_cards(card, n)
         print(f"draw {card.cardStr}")
-        if self.autoSort:
-            self.sort_hands()
+        # if self.autoSort:
+        #     self.sort_hands()
         self.common_event.right_hand_in(self.game.right_hand)
         self.game.ui.plot()
         return card
@@ -105,9 +105,18 @@ class CommonEventManager(object):
         self.game.hands[a], self.game.hands[b] = self.game.hands[b], self.game.hands[a]
 
     def sort_hands(self, refresh=True):
+        if self.game.right_hand is not None:
+            for i, card in enumerate(self.game. hands):
+                if id(card) == id(self.game.right_hand):
+                    self.game.hands[i], self.game.hands[-1] = self.game.hands[-1], self.game.hands[i]
+                    break
+            self.game.hands = sorted(self.game.hands[:-1], key=lambda x: x.cardNum)
+            self.game.hands.append(self.game.right_hand)
+        else:
+            self.game.hands.sort(key=lambda x: x.cardNum)
         self.game.hands.sort(key=lambda x: x.cardNum)
         if refresh:
-            self.refresh()
+            self.refresh(sort=False)
 
     def next_hands(self):
         if len(self.game.hands) < Constants.MAX_HANDS + 1:
@@ -115,14 +124,7 @@ class CommonEventManager(object):
             self.refresh()
         else:
             print("Please drop a card first!")
-
-    def update(self):
-        if self.game.right_hand is not None:
-            self.game.right_hand.back_color = tuple(min(1, 0.3*(math.sin(2.5*self.game.time)+1)+0.5) *
-                                                    c for c in Constants.CARD_LEVEL[self.game.right_hand.level])
-            self.game.ui.cardImages.fill(self.game.right_hand.back_color, self.game.right_hand.rect)
-            x, y = self.game.right_hand.rect.topleft
-            self.game.ui.cardImages.blit(self.game.right_hand.picture, (x+2, y+5))
+        print(f"{len(self.game.deck)} cards left in deck.")
 
     def setting(self):
         self.game.running = False
@@ -176,3 +178,10 @@ class CommonEventManager(object):
         self.game.ui.plot()
 
         self.game.running = True
+
+    def end(self):
+        self.game.running = False
+        print("Game over!")
+        # TODO
+        pg.quit()
+        sys.exit(0)
