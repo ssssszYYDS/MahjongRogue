@@ -81,6 +81,12 @@ class UI(object):
                                          func=resume
                                          )
 
+        self.deck_button = self.Button((self.window_w/10, self.window_h/10), (0, 0, 128), (0, 0, 150), (0, 0, 100),
+                                       pg.font.Font(None, 36).render(f"??? cards", True, (255, 255, 255)),
+                                       (self.window_w*9/10, self.window_h*3/10, self.window_w/10, self.window_h/10),
+                                       func=lambda: 1
+                                       )
+
         self.cardImages = pg.Surface(game.screen.get_size())
         self.cardImages.set_colorkey((0, 0, 0))
 
@@ -94,6 +100,13 @@ class UI(object):
         self.is_move = False
         self.drag_id = -1
 
+    def update_deck_button(self):
+        self.deck_button.button_text = pg.font.Font(None, 36).render(
+            f"{len(self.game.deck)} cards", True, (255, 255, 255))
+        pg.draw.rect(self.game.screen, (0, 0, 128), self.deck_button.button_text_rect)  # 清除旧文本
+        self.game.screen.blit(self.deck_button.button_text, self.deck_button.button_text_rect)
+        pg.display.update()
+
     def plot(self):
         self.game.screen.blit(self.background, (0, 0))
 
@@ -106,6 +119,9 @@ class UI(object):
         self.game.screen.blit(self.setting_button.button, self.setting_button.button_rect.topleft)
         self.game.screen.blit(self.setting_button.button_text, self.setting_button.button_text_rect)
 
+        self.game.screen.blit(self.deck_button.button, self.deck_button.button_rect.topleft)
+        self.game.screen.blit(self.deck_button.button_text, self.deck_button.button_text_rect)
+
         self.game.screen.blit(self.cardImages, (0, 0))
         self.game.screen.blit(self.moveCardImages, (0, 0))
         self.game.screen.blit(self.setting, (0, 0))
@@ -116,6 +132,8 @@ class UI(object):
 
             self.game.screen.blit(self.resume_button.button, self.resume_button.button_rect.topleft)
             self.game.screen.blit(self.resume_button.button_text, self.resume_button.button_text_rect)
+
+        self.update_deck_button()
 
         pg.display.update()
 
