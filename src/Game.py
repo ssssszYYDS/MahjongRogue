@@ -43,29 +43,39 @@ class Game(object):
         for i in range(Constants.MAX_HANDS):
             self.hands.append(self.manager.draw(i))
 
-        self.ui.next_button.press()
-
         pg.display.update()
 
     def run(self):
         self.init_game()
         self.running = True
         while self.running:
+            if len(self.hands) < Constants.MAX_HANDS + 1:
+                self.ui.next_button.press()
+
             for event in pg.event.get():
                 if event.type == pg.QUIT or pg.key.get_pressed()[pg.K_ESCAPE]:
                     self.running = False
                     break
-
+                mouse_buttons = pg.mouse.get_pressed()
                 # 鼠标按下，让状态变成可以移动
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    for i, card in enumerate(self.hands):
-                        image_x, image_y = card.rect.topleft
-                        w, h = card.picture.get_size()
+                    if mouse_buttons[0]:  # 左键
+                        for i, card in enumerate(self.hands):
+                            image_x, image_y = card.rect.topleft
+                            w, h = card.picture.get_size()
 
-                        if CommonEventManager.is_in_rect(event.pos, (image_x, image_y, w, h)):
-                            self.ui.is_move = True
-                            self.ui.drag_id = i
-                            break
+                            if CommonEventManager.is_in_rect(event.pos, (image_x, image_y, w, h)):
+                                self.ui.is_move = True
+                                self.ui.drag_id = i
+                                break
+                    elif mouse_buttons[2]:  # 右键
+                        for i, card in enumerate(self.hands):
+                            image_x, image_y = card.rect.topleft
+                            w, h = card.picture.get_size()
+
+                            if CommonEventManager.is_in_rect(event.pos, (image_x, image_y, w, h)):
+                                self.manager.drop(i)
+                                break
 
                     self.manager.check_button_down(event, self.ui.sort_button)
                     self.manager.check_button_down(event, self.ui.next_button)
@@ -97,7 +107,7 @@ class Game(object):
 
                 # 鼠标移动对应的事件
                 if event.type == pg.MOUSEMOTION:
-                    if self.ui.is_move:
+                    if mouse_buttons[0] and self.ui.is_move:
                         x, y = event.pos
                         color = self.hands[self.ui.drag_id].back_color
                         image = self.hands[self.ui.drag_id].picture
