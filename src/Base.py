@@ -1,13 +1,13 @@
 class Constants:
     FPS = 60
 
-    # FULL_SCREEN = True
+    DEFAULT_SCREEN = False
     FULL_SCREEN = False
+    FULL_WINDOW_SCREEN = True
+    DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT = 1280, 720
     WINDOW_WIDTH, WINDOW_HEIGHT = None, None
-    if not FULL_SCREEN:
-        WINDOW_WIDTH, WINDOW_HEIGHT = 1920, 1080
-    else:
-        WINDOW_WIDTH, WINDOW_HEIGHT = 3840, 2160
+    if DEFAULT_SCREEN:
+        WINDOW_WIDTH, WINDOW_HEIGHT = DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT
 
     ALLCARD = ['1m', '2m', '3m', '4m', '5m', '6m', '7m', '8m', '9m',
                '1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p',

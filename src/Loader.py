@@ -3,19 +3,17 @@ import pygame as pg
 
 
 from Base import *
-from UI import UI
 
 
-class Loader:
+class Loader(object):
     resourcePath = os.path.join(os.path.dirname(__file__), "..", "resources")
     cardsImage = pg.image.load(os.path.join(resourcePath, "cards.png"))
     background = pg.image.load(os.path.join(resourcePath, "background.png"))
 
-    def __init__(self):
-        pass
+    def __init__(self, game):
+        self.game = game
 
-    @staticmethod
-    def load_cards(game, card, n):
+    def load_cards(self, card, n):
         width = 195
         height = 255
 
@@ -24,18 +22,18 @@ class Loader:
         cardImages = pg.Surface((width, height))
         cardImages.blit(Loader.cardsImage, (0, 0), source_rect)
 
-        scaled_image = pg.transform.scale(cardImages, (UI.CARD_WIDTH, UI.CARD_HEIGHT))
+        scaled_image = pg.transform.scale(cardImages, (self.game.ui.CARD_WIDTH, self.game.ui.CARD_HEIGHT))
         scaled_image.set_colorkey((0, 0, 0))
 
-        rect = UI.get_hands_rect(n)
+        rect = self.game.ui.get_hands_rect(n)
         x, y = rect.topleft
 
-        game.ui.cardImages.fill(card.back_color, rect)
-        game.ui.cardImages.blit(scaled_image, (x+2, y+5))
+        self.game.ui.cardImages.fill(card.back_color, rect)
+        self.game.ui.cardImages.blit(scaled_image, (x+2, y+5))
 
-        if game.right_first is not None:
-            game.right_first.back_color = Constants.CARD_LEVEL[game.right_first.level]
-        game.right_first = card
+        if self.game.right_first is not None:
+            self.game.right_first.back_color = Constants.CARD_LEVEL[self.game.right_first.level]
+        self.game.right_first = card
 
         card.picture = scaled_image
         card.rect = rect

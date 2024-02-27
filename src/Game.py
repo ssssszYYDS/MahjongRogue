@@ -5,16 +5,22 @@ import random
 from Base import *
 from CommonEventManager import CommonEventManager
 from Card import Card
+from Loader import Loader
 from UI import UI
 
 
 class Game(object):
-
     def __init__(self):
         pg.init()
-        if Constants.FULL_SCREEN:
+        if not Constants.DEFAULT_SCREEN:
             screen_info = pg.display.Info()
-            self.screen = pg.display.set_mode((screen_info.current_w, screen_info.current_h), pg.FULLSCREEN)
+            print(screen_info)
+            if Constants.FULL_WINDOW_SCREEN:
+                self.screen = pg.display.set_mode((screen_info.current_w, screen_info.current_h))
+            elif Constants.FULL_SCREEN:
+                self.screen = pg.display.set_mode((screen_info.current_w, screen_info.current_h), pg.FULLSCREEN)
+            else:
+                raise ValueError("Invalid screen mode")
             Constants.WINDOW_WIDTH = screen_info.current_w
             Constants.WINDOW_HEIGHT = screen_info.current_h
         else:
@@ -24,6 +30,7 @@ class Game(object):
         self.running = False
 
         self.ui = UI(self)
+        self.loader = Loader(self)
         self.manager = CommonEventManager(self)
 
     def init_game(self):
@@ -74,7 +81,7 @@ class Game(object):
                             break
                     else:
                         self.ui.moveCardImages.fill((0, 0, 0))
-                        if self.ui.drag_id != -1 and event.pos[1] < Constants.WINDOW_HEIGHT - UI.CARD_HEIGHT:
+                        if self.ui.drag_id != -1 and event.pos[1] < Constants.WINDOW_HEIGHT - self.ui.CARD_HEIGHT:
                             self.manager.drop(self.ui.drag_id)
 
                     self.manager.check_button_up(event, self.ui.sort_button)

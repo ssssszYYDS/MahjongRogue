@@ -48,14 +48,14 @@ class CommonEventManager(object):
         if self.autoSort:
             self.sort_hands(False)
         for i in range(Constants.MAX_HANDS+1):
-            self.game.ui.cardImages.fill((0, 0, 0), UI.get_hands_rect(i))
+            self.game.ui.cardImages.fill((0, 0, 0), self.game.ui.get_hands_rect(i))
         for i, card in enumerate(self.game.hands):
-            card.rect = UI.get_hands_rect(i)
+            card.rect = self.game.ui.get_hands_rect(i)
             x, y = card.rect.topleft
             self.game.ui.cardImages.fill(card.back_color, card.rect)
             self.game.ui.cardImages.blit(card.picture, (x+2, y+5))
         for i in range(len(self.game.hands), Constants.MAX_HANDS+1):
-            self.game.ui.cardImages.fill((100, 100, 100), UI.get_hands_rect(i))
+            self.game.ui.cardImages.fill((100, 100, 100), self.game.ui.get_hands_rect(i))
         self.game.ui.plot()
 
     def draw(self, n=Constants.MAX_HANDS):
@@ -63,7 +63,7 @@ class CommonEventManager(object):
             return None
         card = self.game.deck.pop(0)
         card.holder = 1
-        Loader.load_cards(self.game, card, n)
+        self.game.loader.load_cards(card, n)
         print(f"draw {card.cardStr}")
         if self.autoSort:
             self.sort_hands()
