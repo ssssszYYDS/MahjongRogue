@@ -3,8 +3,7 @@ import sys
 import math
 
 from Base import *
-from Loader import Loader
-from UI import UI
+from CommonEvent import CommonEvent
 
 
 class CommonEventManager(object):
@@ -18,6 +17,7 @@ class CommonEventManager(object):
 
     def __init__(self, game):
         self.game = game
+        self.common_event = CommonEvent(game)
         self.autoSort = False
         self.settingMode = False
 
@@ -47,8 +47,7 @@ class CommonEventManager(object):
     def refresh(self):
         if self.autoSort:
             self.sort_hands(False)
-        for i in range(Constants.MAX_HANDS+1):
-            self.game.ui.cardImages.fill((0, 0, 0), self.game.ui.get_hands_rect(i))
+        self.game.ui.cardImages.fill((0, 0, 0))
         for i, card in enumerate(self.game.hands):
             card.rect = self.game.ui.get_hands_rect(i)
             x, y = card.rect.topleft
@@ -74,8 +73,8 @@ class CommonEventManager(object):
         if n >= len(self.game.hands):
             return
         card = self.game.hands.pop(n)
-        if id(card) == id(self.game.right_first):
-            self.game.right_first = None
+        if id(card) == id(self.game.right_hand):
+            self.game.right_hand = None
         self.game.ui.cardImages.fill((0, 0, 0), card.rect)
         card.holder = -1
         card.rect = None
@@ -116,13 +115,8 @@ class CommonEventManager(object):
         else:
             print("Please drop a card first!")
 
-    def update(self, time, dt):
-        if self.game.right_first is not None:
-            self.game.right_first.back_color = tuple(min(1, 0.3*(math.sin(2.5*time)+1)+0.5) *
-                                                     c for c in Constants.CARD_LEVEL[self.game.right_first.level])
-            self.game.ui.cardImages.fill(self.game.right_first.back_color, self.game.right_first.rect)
-            x, y = self.game.right_first.rect.topleft
-            self.game.ui.cardImages.blit(self.game.right_first.picture, (x+2, y+5))
+    def update(self):
+        self.common_event.right_hand_in(self.game.right_hand)
 
     def setting(self):
         self.game.running = False
@@ -168,6 +162,9 @@ class CommonEventManager(object):
                     self.check_button_over(event, self.game.ui.autoSort_button)
                     self.check_button_over(event, self.game.ui.resume_button)
                     self.game.ui.plot()
+
+            self.game.dt = self.game.clock.tick(Constants.FPS)  # 60 FPS
+            self.game.time = pg.time.get_ticks() / 1000
 
         self.game.ui.setting.fill((0, 0, 0))
         self.game.ui.plot()

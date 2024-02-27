@@ -38,10 +38,13 @@ class Game(object):
         self.deck = self.all_deck.copy()
         random.shuffle(self.deck)
         self.hands = []
-        self.right_first = None
+        self.right_hand = None
 
         for i in range(Constants.MAX_HANDS):
             self.hands.append(self.manager.draw(i))
+
+        self.ui.next_button.press()
+
         pg.display.update()
 
     def run(self):
@@ -118,7 +121,7 @@ class Game(object):
             self.dt = self.clock.tick(Constants.FPS)  # 60 FPS
             self.time = pg.time.get_ticks() / 1000
 
-            self.manager.update(self.time, self.dt)
+            self.manager.update()
 
             # break
             self.ui.plot()

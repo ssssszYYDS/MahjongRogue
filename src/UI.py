@@ -4,7 +4,6 @@ from Base import Constants
 
 
 class UI(object):
-    
 
     class Button(object):
         def __init__(self, size,  color, hover_color, click_color, text, rect, func):
@@ -33,7 +32,7 @@ class UI(object):
         self.CARD_WIDTH = Constants.WINDOW_WIDTH / 18
         self.CARD_HEIGHT = self.CARD_WIDTH / 195 * 255
         self.GAP = Constants.WINDOW_WIDTH / 150
-        
+
         self.game = game
         self.window_w, self.window_h = game.screen.get_size()
         self.background = pg.Surface(game.screen.get_size())
@@ -121,7 +120,8 @@ class UI(object):
         pg.display.update()
 
     def get_hands_rect(self, n):
-        x = (Constants.WINDOW_WIDTH - (self.CARD_WIDTH+self.GAP) * 14.5) / 2 + n * (self.CARD_WIDTH+self.GAP) \
-            if n != Constants.MAX_HANDS else (Constants.WINDOW_WIDTH - (self.CARD_WIDTH+self.GAP) * 14.5) / 2 + (n+0.5) * (self.CARD_WIDTH+self.GAP)
+        space = 0 if self.game.manager.autoSort else 0.5
+        x = (Constants.WINDOW_WIDTH - (self.CARD_WIDTH+self.GAP) * (Constants.MAX_HANDS + 1 + space)) / 2 + n * (self.CARD_WIDTH+self.GAP) \
+            if n != Constants.MAX_HANDS else (Constants.WINDOW_WIDTH - (self.CARD_WIDTH + self.GAP) * (Constants.MAX_HANDS + 1 + space)) / 2 + (n+space) * (self.CARD_WIDTH+self.GAP)
         y = Constants.WINDOW_HEIGHT - self.CARD_HEIGHT
         return pg.Rect(x, y, self.CARD_WIDTH, self.CARD_HEIGHT)

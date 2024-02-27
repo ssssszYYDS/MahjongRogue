@@ -31,9 +31,8 @@ class Loader(object):
         self.game.ui.cardImages.fill(card.back_color, rect)
         self.game.ui.cardImages.blit(scaled_image, (x+2, y+5))
 
-        if self.game.right_first is not None:
-            self.game.right_first.back_color = Constants.CARD_LEVEL[self.game.right_first.level]
-        self.game.right_first = card
+        self.game.manager.common_event.right_hand_out(self.game.right_hand)
+        self.game.right_hand = card
 
         card.picture = scaled_image
         card.rect = rect
