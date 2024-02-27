@@ -1,8 +1,8 @@
 import pygame as pg
 import sys
-import math
 
 from Base import *
+from Checker import Checker
 from CommonEvent import CommonEvent
 
 
@@ -18,31 +18,35 @@ class CommonEventManager(object):
     def __init__(self, game):
         self.game = game
         self.common_event = CommonEvent(game)
+        self.checker = Checker(game)
         self.autoSort = False
         self.settingMode = False
 
-    def check_button_down(self, event, button):
-        if CommonEventManager.is_in_rect(event.pos, button.button_rect):
-            button.button.fill(button.button_click_color)
-            button.press_button = True
-            button.press()
-            return True
-        return False
+    def check_button_down(self, event, buttons):
+        if type(buttons) != list:
+            raise ValueError("buttons are not list type!")
+        for button in buttons:
+            if CommonEventManager.is_in_rect(event.pos, button.button_rect):
+                button.button.fill(button.button_click_color)
+                button.press_button = True
+                button.press()
 
-    def check_button_up(self, event, button):
-        if CommonEventManager.is_in_rect(event.pos, button.button_rect):
-            button.button.fill(button.button_color)
-            button.press_button = False
-            return True
-        return False
+    def check_button_up(self, event, buttons):
+        if type(buttons) != list:
+            raise ValueError("buttons are not list type!")
+        for button in buttons:
+            if CommonEventManager.is_in_rect(event.pos, button.button_rect):
+                button.button.fill(button.button_color)
+                button.press_button = False
 
-    def check_button_over(self, event, button):
-        if CommonEventManager.is_in_rect(event.pos, button.button_rect_raw):
-            button.button.fill(button.button_hover_color)
-            return True
-        else:
-            button.button.fill(button.button_color)
-            return False
+    def check_button_over(self, event, buttons):
+        if type(buttons) != list:
+            raise ValueError("buttons are not list type!")
+        for button in buttons:
+            if CommonEventManager.is_in_rect(event.pos, button.button_rect_raw):
+                button.button.fill(button.button_hover_color)
+            else:
+                button.button.fill(button.button_color)
 
     def refresh(self, sort=True):
         if self.autoSort and sort:
@@ -64,8 +68,6 @@ class CommonEventManager(object):
         card.holder = 1
         self.game.loader.load_cards(card, n)
         print(f"draw {card.cardStr}")
-        # if self.autoSort:
-        #     self.sort_hands()
         self.common_event.right_hand_in(self.game.right_hand)
         self.game.ui.plot()
         return card
@@ -73,6 +75,7 @@ class CommonEventManager(object):
     def drop(self, n):
         if n >= len(self.game.hands):
             return
+        self.game.can_hu = False
         card = self.game.hands.pop(n)
         if id(card) == id(self.game.right_hand):
             self.game.right_hand = None
@@ -107,23 +110,24 @@ class CommonEventManager(object):
     def sort_hands(self, refresh=True):
         if self.game.right_hand is not None:
             for i, card in enumerate(self.game. hands):
-                if id(card) == id(self.game.right_hand):
+                if id(card) == id(self.game.right_hand) and i != len(self.game.hands)-1:
                     self.game.hands[i], self.game.hands[-1] = self.game.hands[-1], self.game.hands[i]
                     break
             self.game.hands = sorted(self.game.hands[:-1], key=lambda x: x.cardNum)
             self.game.hands.append(self.game.right_hand)
         else:
             self.game.hands.sort(key=lambda x: x.cardNum)
-        self.game.hands.sort(key=lambda x: x.cardNum)
         if refresh:
             self.refresh(sort=False)
 
     def next_hands(self):
-        if len(self.game.hands) < Constants.MAX_HANDS + 1:
-            self.game.hands.append(self.draw(len(self.game.hands)))
-            self.refresh()
-        else:
-            print("Please drop a card first!")
+        if not self.deck_over_check():
+            if len(self.game.hands) < Constants.MAX_HANDS + 1:
+                self.game.hands.append(self.draw(len(self.game.hands)))
+                self.refresh()
+                self.hands_hu_check()
+            else:
+                print("Please drop a card first!")
         print(f"{len(self.game.deck)} cards left in deck.")
 
     def setting(self):
@@ -151,14 +155,12 @@ class CommonEventManager(object):
 
                 # 鼠标按下，让状态变成可以移动
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    self.check_button_down(event, self.game.ui.autoSort_button)
-                    self.check_button_down(event, self.game.ui.resume_button)
+                    self.check_button_down(event, [self.game.ui.autoSort_button, self.game.ui.resume_button])
                     self.game.ui.plot()
 
                 # 鼠标弹起，让状态变成不可以移动
                 if event.type == pg.MOUSEBUTTONUP:
-                    self.check_button_up(event, self.game.ui.autoSort_button)
-                    self.check_button_up(event, self.game.ui.resume_button)
+                    self.check_button_up(event, [self.game.ui.autoSort_button, self.game.ui.resume_button])
                     self.game.ui.plot()
 
                 # 鼠标移动对应的事件
@@ -167,8 +169,7 @@ class CommonEventManager(object):
 
                 # 鼠标悬停对应的事件
                 if event.type == pg.MOUSEMOTION:
-                    self.check_button_over(event, self.game.ui.autoSort_button)
-                    self.check_button_over(event, self.game.ui.resume_button)
+                    self.check_button_over(event, [self.game.ui.autoSort_button, self.game.ui.resume_button])
                     self.game.ui.plot()
 
             self.game.dt = self.game.clock.tick(Constants.FPS)  # 60 FPS
@@ -179,9 +180,19 @@ class CommonEventManager(object):
 
         self.game.running = True
 
-    def end(self):
-        self.game.running = False
-        print("Game over!")
-        # TODO
-        pg.quit()
-        sys.exit(0)
+    def deck_over_check(self):
+        if len(self.game.deck) == 0:
+            self.game.ui.plot()
+            self.game.end()
+            return True
+        return False
+
+    def hands_hu_check(self):
+        # [[('1m', '1m', '1m'), ('2m', '2m', '2m'), ('3m', '3m', '3m'), ('3z', '3z', '3z'), ('7z', '7z')], [('1m', '2m', '3m'), ('1m', '2m', '3m'), ('1m', '2m', '3m'), ('3z', '3z', '3z'), ('7z', '7z')]]
+        hu_cardss = self.checker.check_now()
+        if hu_cardss is None or len(hu_cardss) == 0:
+            return False
+        self.game.can_hu = True
+        self.game.hu_cardss = hu_cardss
+        print(f"can hu: {hu_cardss}")
+        return True

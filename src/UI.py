@@ -1,6 +1,7 @@
 import pygame as pg
 
 from Base import Constants
+from collections import Counter
 
 
 class UI(object):
@@ -21,8 +22,6 @@ class UI(object):
             self.button_text
             self.button_text_rect = self.button_text.get_rect(center=self.button_rect.center)
 
-            self.press_button = False
-
             self.func = func    # 按钮功能
 
         def press(self, *args, **kwargs):
@@ -32,9 +31,11 @@ class UI(object):
         self.CARD_WIDTH = Constants.WINDOW_WIDTH / 18
         self.CARD_HEIGHT = self.CARD_WIDTH / 195 * 255
         self.GAP = Constants.WINDOW_WIDTH / 150
+        self.EXT_GAP_RATE = 0.5
 
         self.game = game
         self.window_w, self.window_h = game.screen.get_size()
+
         self.background = pg.Surface(game.screen.get_size())
         self.background.fill((0, 128, 0))  # 绿色背景
 
@@ -81,11 +82,27 @@ class UI(object):
                                          func=resume
                                          )
 
+        def click_deck():
+            print(f"click deck!")
+            pass
         self.deck_button = self.Button((self.window_w/10, self.window_h/10), (0, 0, 128), (0, 0, 150), (0, 0, 100),
                                        pg.font.Font(None, 36).render(f"??? cards", True, (255, 255, 255)),
                                        (self.window_w*9/10, self.window_h*3/10, self.window_w/10, self.window_h/10),
-                                       func=lambda: 1
+                                       func=click_deck
                                        )
+
+        def click_hu():
+            # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+            # if not game.can_hu:
+            #     return
+            print(f"click hu!!!")
+            self._render_choose_hu_type(self.game.hu_cardss)
+
+        self.hu_button = self.Button((self.window_w/5, self.window_h/10), (128, 0, 0), (150, 0, 0), (100, 0, 0),
+                                     pg.font.Font(None, 42).render(f"Hu", True, (255, 165, 0)),
+                                     (self.window_w*6/10, self.window_h*5/10, self.window_w/5, self.window_h/10),
+                                     func=click_hu
+                                     )
 
         self.cardImages = pg.Surface(game.screen.get_size())
         self.cardImages.set_colorkey((0, 0, 0))
@@ -93,6 +110,14 @@ class UI(object):
         self.moveCardImages = pg.Surface(game.screen.get_size())
         self.moveCardImages.set_colorkey((0, 0, 0))
         self.moveCardImages.set_alpha(128)
+
+        self.hu_type_choosing_layer = pg.Surface(game.screen.get_size())
+        self.hu_type_choosing_layer.set_colorkey((0, 0, 0))
+        self.hu_type_choosing_layer.set_alpha(128)
+
+        self.hu_seq_choosing_layer = pg.Surface(game.screen.get_size())
+        self.hu_seq_choosing_layer.set_colorkey((0, 0, 0))
+        self.hu_seq_choosing_layer.set_alpha(128)
 
         self.setting = pg.Surface(game.screen.get_size())
         self.setting.set_colorkey((0, 0, 0))
@@ -105,41 +130,46 @@ class UI(object):
             f"{len(self.game.deck)} cards", True, (255, 255, 255))
         pg.draw.rect(self.game.screen, (0, 0, 128), self.deck_button.button_text_rect)  # 清除旧文本
         self.game.screen.blit(self.deck_button.button_text, self.deck_button.button_text_rect)
-        pg.display.update()
+
+    def _render_layer(self, layer):
+        self.game.screen.blit(layer, (0, 0))
+
+    def _render_button(self, button):
+        self.game.screen.blit(button.button, button.button_rect.topleft)
+        self.game.screen.blit(button.button_text, button.button_text_rect)
+
+    def _render_choose_hu_type(self, hu_cardss):
+
+        cards_counter = Counter([hand.cardStr for hand in self.game.hands])
+        self._render_choose_hu_seq(cards_counter)
+
+    def _render_choose_hu_seq(self, cards_counter):
+        pass
 
     def plot(self):
-        self.game.screen.blit(self.background, (0, 0))
+        self._render_layer(self.background)
 
-        self.game.screen.blit(self.sort_button.button, self.sort_button.button_rect.topleft)
-        self.game.screen.blit(self.sort_button.button_text, self.sort_button.button_text_rect)
+        self._render_button(self.sort_button)
+        self._render_button(self.next_button)
+        self._render_button(self.setting_button)
+        self._render_button(self.deck_button)
+        self.update_deck_button()
 
-        self.game.screen.blit(self.next_button.button, self.next_button.button_rect.topleft)
-        self.game.screen.blit(self.next_button.button_text, self.next_button.button_text_rect)
+        if self.game.can_hu:
+            self._render_button(self.hu_button)
 
-        self.game.screen.blit(self.setting_button.button, self.setting_button.button_rect.topleft)
-        self.game.screen.blit(self.setting_button.button_text, self.setting_button.button_text_rect)
-
-        self.game.screen.blit(self.deck_button.button, self.deck_button.button_rect.topleft)
-        self.game.screen.blit(self.deck_button.button_text, self.deck_button.button_text_rect)
-
-        self.game.screen.blit(self.cardImages, (0, 0))
-        self.game.screen.blit(self.moveCardImages, (0, 0))
-        self.game.screen.blit(self.setting, (0, 0))
+        self._render_layer(self.cardImages)
+        self._render_layer(self.moveCardImages)
+        self._render_layer(self.setting)
 
         if self.game.manager.settingMode:
-            self.game.screen.blit(self.autoSort_button.button, self.autoSort_button.button_rect.topleft)
-            self.game.screen.blit(self.autoSort_button.button_text, self.autoSort_button.button_text_rect)
-
-            self.game.screen.blit(self.resume_button.button, self.resume_button.button_rect.topleft)
-            self.game.screen.blit(self.resume_button.button_text, self.resume_button.button_text_rect)
-
-        self.update_deck_button()
+            self._render_button(self.autoSort_button)
+            self._render_button(self.resume_button)
 
         pg.display.update()
 
     def get_hands_rect(self, n):
-        space = 0 if self.game.manager.autoSort else 0.5
-        x = (Constants.WINDOW_WIDTH - (self.CARD_WIDTH+self.GAP) * (Constants.MAX_HANDS + 1 + space)) / 2 + n * (self.CARD_WIDTH+self.GAP) \
-            if n != Constants.MAX_HANDS else (Constants.WINDOW_WIDTH - (self.CARD_WIDTH + self.GAP) * (Constants.MAX_HANDS + 1 + space)) / 2 + (n+space) * (self.CARD_WIDTH+self.GAP)
+        x = (Constants.WINDOW_WIDTH - (self.CARD_WIDTH+self.GAP) * (Constants.MAX_HANDS + 1 + self.EXT_GAP_RATE)) / 2 + n * (self.CARD_WIDTH+self.GAP) \
+            if n != Constants.MAX_HANDS else (Constants.WINDOW_WIDTH - (self.CARD_WIDTH + self.GAP) * (Constants.MAX_HANDS + 1 + self.EXT_GAP_RATE)) / 2 + (n + self.EXT_GAP_RATE) * (self.CARD_WIDTH+self.GAP)
         y = Constants.WINDOW_HEIGHT - self.CARD_HEIGHT
         return pg.Rect(x, y, self.CARD_WIDTH, self.CARD_HEIGHT)

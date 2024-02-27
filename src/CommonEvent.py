@@ -24,10 +24,3 @@ class CommonEvent(object):
             self.game.ui.cardImages.fill(self.game.right_hand.back_color, self.game.right_hand.rect)
             x, y = self.game.right_hand.rect.topleft
             self.game.ui.cardImages.blit(self.game.right_hand.picture, (x+2, y+5))
-
-    def end_check(self):
-        if len(self.game.deck) == 0:
-            self.game.ui.plot()
-            self.game.manager.end()
-            return True
-        return False

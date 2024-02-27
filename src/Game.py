@@ -34,14 +34,21 @@ class Game(object):
         self.manager = CommonEventManager(self)
 
     def init_game(self):
+        self.win = False
+        self.fail = False
+
         self.dt = self.clock.tick(Constants.FPS)  # 60 FPS
         self.time = pg.time.get_ticks() / 1000
 
         self.all_deck = [Card(cardStr) for cardStr in Constants.ALLCARDS]
         self.deck = self.all_deck.copy()
         random.shuffle(self.deck)
+
         self.hands = []
         self.right_hand = None
+
+        self.can_hu = False
+        self.hu_cardss = []
 
         for i in range(Constants.MAX_HANDS):
             self.hands.append(self.manager.draw(i))
@@ -80,9 +87,8 @@ class Game(object):
                                 self.manager.drop(i)
                                 break
 
-                    self.manager.check_button_down(event, self.ui.sort_button)
-                    self.manager.check_button_down(event, self.ui.next_button)
-                    self.manager.check_button_down(event, self.ui.setting_button)
+                    self.manager.check_button_down(
+                        event, [self.ui.sort_button, self.ui.next_button, self.ui.setting_button, self.ui.hu_button])
                     self.ui.plot()
 
                 # 鼠标弹起，让状态变成不可以移动
@@ -100,9 +106,8 @@ class Game(object):
                         if self.ui.drag_id != -1 and event.pos[1] < Constants.WINDOW_HEIGHT - self.ui.CARD_HEIGHT:
                             self.manager.drop(self.ui.drag_id)
 
-                    self.manager.check_button_up(event, self.ui.sort_button)
-                    self.manager.check_button_up(event, self.ui.next_button)
-                    self.manager.check_button_up(event, self.ui.setting_button)
+                    self.manager.check_button_up(
+                        event, [self.ui.sort_button, self.ui.next_button, self.ui.setting_button, self.ui.hu_button])
 
                     self.ui.is_move = False
                     self.ui.drag_id = -1
@@ -126,21 +131,24 @@ class Game(object):
 
                 # 鼠标悬停对应的事件
                 if event.type == pg.MOUSEMOTION:
-                    self.manager.check_button_over(event, self.ui.sort_button)
-                    self.manager.check_button_over(event, self.ui.next_button)
-                    self.manager.check_button_over(event, self.ui.setting_button)
+                    self.manager.check_button_over(
+                        event, [self.ui.sort_button, self.ui.next_button, self.ui.setting_button, self.ui.hu_button])
                     self.ui.plot()
 
             self.dt = self.clock.tick(Constants.FPS)  # 60 FPS
             self.time = pg.time.get_ticks() / 1000
 
             self.manager.common_event.vision_update()
-            self.manager.common_event.end_check()
 
             # break
             self.ui.plot()
         pg.quit()
         sys.exit(0)
+
+    def end(self):
+        self.running = False
+        self.fail = True
+        print("Game over!")
 
 
 if __name__ == '__main__':
