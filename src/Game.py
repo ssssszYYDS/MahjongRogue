@@ -34,6 +34,9 @@ class Game(object):
         self.manager = CommonEventManager(self)
 
     def init_game(self):
+        self.dt = self.clock.tick(Constants.FPS)  # 60 FPS
+        self.time = pg.time.get_ticks() / 1000
+
         self.all_deck = [Card(cardStr) for cardStr in Constants.ALLCARD]
         self.deck = self.all_deck.copy()
         random.shuffle(self.deck)

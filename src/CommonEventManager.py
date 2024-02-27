@@ -66,6 +66,7 @@ class CommonEventManager(object):
         print(f"draw {card.cardStr}")
         if self.autoSort:
             self.sort_hands()
+        self.common_event.right_hand_in(self.game.right_hand)
         self.game.ui.plot()
         return card
 
@@ -116,7 +117,12 @@ class CommonEventManager(object):
             print("Please drop a card first!")
 
     def update(self):
-        self.common_event.right_hand_in(self.game.right_hand)
+        if self.game.right_hand is not None:
+            self.game.right_hand.back_color = tuple(min(1, 0.3*(math.sin(2.5*self.game.time)+1)+0.5) *
+                                                    c for c in Constants.CARD_LEVEL[self.game.right_hand.level])
+            self.game.ui.cardImages.fill(self.game.right_hand.back_color, self.game.right_hand.rect)
+            x, y = self.game.right_hand.rect.topleft
+            self.game.ui.cardImages.blit(self.game.right_hand.picture, (x+2, y+5))
 
     def setting(self):
         self.game.running = False
