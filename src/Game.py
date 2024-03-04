@@ -7,6 +7,7 @@ from CommonEventManager import CommonEventManager
 from Card import Card
 from Loader import Loader
 from UI import UI
+from Utils import Utils
 
 
 class Game(object):
@@ -74,7 +75,7 @@ class Game(object):
                             image_x, image_y = card.rect.topleft
                             w, h = card.picture.get_size()
 
-                            if CommonEventManager.is_in_rect(event.pos, (image_x, image_y, w, h)):
+                            if Utils.is_in_rect(event.pos, (image_x, image_y, w, h)):
                                 self.ui.is_move = True
                                 self.ui.drag_id = i
                                 break
@@ -83,7 +84,7 @@ class Game(object):
                             image_x, image_y = card.rect.topleft
                             w, h = card.picture.get_size()
 
-                            if CommonEventManager.is_in_rect(event.pos, (image_x, image_y, w, h)):
+                            if Utils.is_in_rect(event.pos, (image_x, image_y, w, h)):
                                 self.manager.drop(i)
                                 break
 
@@ -97,7 +98,7 @@ class Game(object):
                     for i, card in enumerate(self.hands):
                         image_x, image_y = card.rect.topleft
                         w, h = card.picture.get_size()
-                        if self.ui.drag_id != -1 and CommonEventManager.is_in_rect(event.pos, (image_x, image_y, w, h)):
+                        if self.ui.drag_id != -1 and Utils.is_in_rect(event.pos, (image_x, image_y, w, h)):
                             self.manager.swap(i, self.ui.drag_id)
                             self.ui.moveCardImages.fill((0, 0, 0))
                             break

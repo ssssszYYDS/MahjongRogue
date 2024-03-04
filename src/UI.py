@@ -3,6 +3,8 @@ import pygame as pg
 from Base import Constants
 from collections import Counter
 
+from Utils import Utils
+
 
 class UI(object):
 
@@ -92,7 +94,7 @@ class UI(object):
                                        )
 
         def click_hu():
-            # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+            # TODO
             # if not game.can_hu:
             #     return
             print(f"click hu!!!")
@@ -139,11 +141,15 @@ class UI(object):
         self.game.screen.blit(button.button_text, button.button_text_rect)
 
     def _render_choose_hu_type(self, hu_cardss):
+        if len(hu_cardss) == 1:
+            self._render_choose_hu_seq(Utils.cardsStr_2_str(hu_cardss[0]))
+        else:
+            # TODO
+            pass
+            x = 1
+            self._render_choose_hu_seq(Utils.cardsStr_2_str(hu_cardss[x]))
 
-        cards_counter = Counter([hand.cardStr for hand in self.game.hands])
-        self._render_choose_hu_seq(cards_counter)
-
-    def _render_choose_hu_seq(self, cards_counter):
+    def _render_choose_hu_seq(self, hu_cards_str):
         pass
 
     def plot(self):

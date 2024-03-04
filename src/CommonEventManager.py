@@ -4,16 +4,10 @@ import sys
 from Base import *
 from Checker import Checker
 from CommonEvent import CommonEvent
+from Utils import Utils
 
 
 class CommonEventManager(object):
-    @staticmethod
-    def is_in_rect(pos, rect):
-        x, y = pos
-        rx, ry, rw, rh = rect
-        if (rx <= x <= rx+rw) and (ry <= y <= ry+rh):
-            return True
-        return False
 
     def __init__(self, game):
         self.game = game
@@ -26,7 +20,7 @@ class CommonEventManager(object):
         if type(buttons) != list:
             raise ValueError("buttons are not list type!")
         for button in buttons:
-            if CommonEventManager.is_in_rect(event.pos, button.button_rect):
+            if Utils.is_in_rect(event.pos, button.button_rect):
                 button.button.fill(button.button_click_color)
                 button.press_button = True
                 button.press()
@@ -35,7 +29,7 @@ class CommonEventManager(object):
         if type(buttons) != list:
             raise ValueError("buttons are not list type!")
         for button in buttons:
-            if CommonEventManager.is_in_rect(event.pos, button.button_rect):
+            if Utils.is_in_rect(event.pos, button.button_rect):
                 button.button.fill(button.button_color)
                 button.press_button = False
 
@@ -43,7 +37,7 @@ class CommonEventManager(object):
         if type(buttons) != list:
             raise ValueError("buttons are not list type!")
         for button in buttons:
-            if CommonEventManager.is_in_rect(event.pos, button.button_rect_raw):
+            if Utils.is_in_rect(event.pos, button.button_rect_raw):
                 button.button.fill(button.button_hover_color)
             else:
                 button.button.fill(button.button_color)

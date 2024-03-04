@@ -1,7 +1,7 @@
-import re
 from collections import Counter
 
 from Base import *
+from Utils import Utils
 
 
 class Checker(object):
@@ -65,14 +65,7 @@ class Checker(object):
         if len(self.tempCards) == 5:
             self.finalCards.append(sorted(self.tempCards.copy()))
             # 移除重复的和牌
-            s = ''
-            # self.finalCards[-1] = [('1m', '1m', '1m'), ('2m', '2m', '2m'), ('3m', '3m', '3m'), ('3z', '3z', '3z'), ('7z', '7z')]
-            for mianZi in self.finalCards[-1]:
-                for card in mianZi:
-                    s += card[0]
-                # ['111m', '222m', '333m', '333z', '77z']
-                s += mianZi[0][1]
-            s = ''.join(s)
+            s = Utils.cardsStr_2_str(self.finalCards[-1])
             # ['111m222m333m333z77z']
             if s in self.__finalCardsStrSet:
                 self.finalCards.pop()
